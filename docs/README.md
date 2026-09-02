@@ -1,5 +1,3 @@
-# Prática 1 — Git/GitHub, Poetry e Makefile
-
 ## 1. Labels do repositório
 
 As labels serão utilizadas para organizar Pull Requests e identificar rapidamente o tipo, escopo, finalidade e prática relacionada a cada entrega.
