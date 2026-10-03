@@ -71,20 +71,32 @@ make clean
 
 > `make clean` apaga os dados persistidos do PostgreSQL.
 
+## Banco de dados e migrations
+
+O PostgreSQL sobe junto com a API. Depois de subir o ambiente, aplique as migrations:
+
+```bash
+make db-upgrade
+```
+
+Veja [docs/persistencia-postgresql-sqlalchemy.md](docs/persistencia-postgresql-sqlalchemy.md) para o fluxo completo.
+
 ## Estrutura
 
 ```text
-laboratorio-web/
+sistemas-distribuidos-2/
 ├── backend/
+│   ├── alembic/
 │   ├── app/
 │   ├── tests/
 │   ├── .dockerignore
+│   ├── alembic.ini
 │   ├── Dockerfile
 │   ├── poetry.lock
 │   └── pyproject.toml
 ├── frontend/
 ├── .env.example
-├── compose.yaml
+├── compose.yml
 └── Makefile
 ```
 
