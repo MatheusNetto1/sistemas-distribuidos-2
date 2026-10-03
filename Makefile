@@ -1,4 +1,4 @@
-.PHONY: help install test lint format run up up-build down build logs logs-api ps shell clean
+.PHONY: help install test lint format run up up-build down build logs logs-api ps shell clean db-upgrade db-downgrade db-current db-history db-migration db-psql
 
 POETRY := poetry -C backend
 PYTEST := $(POETRY) run pytest
@@ -21,6 +21,12 @@ help:
 	@echo "  make ps       - mostra o status dos serviços"
 	@echo "  make shell    - abre um shell no container da API"
 	@echo "  make clean    - remove containers, rede e volumes do Compose"
+	@echo "  make db-upgrade   - aplica as migrations pendentes (Alembic)"
+	@echo "  make db-downgrade - desfaz a ultima migration"
+	@echo "  make db-current   - mostra a versao atual do banco"
+	@echo "  make db-history   - lista o historico de migrations"
+	@echo "  make db-migration MSG=\"descricao\" - gera uma nova migration"
+	@echo "  make db-psql      - abre o psql no container do PostgreSQL"
 
 install:
 	$(POETRY) install
@@ -63,3 +69,22 @@ shell:
 
 clean:
 	docker compose down -v
+
+db-upgrade:
+	docker compose exec api alembic upgrade head
+
+db-downgrade:
+	docker compose exec api alembic downgrade -1
+
+db-current:
+	docker compose exec api alembic current
+
+db-history:
+	docker compose exec api alembic history
+
+db-migration:
+	@test -n "$(MSG)" || (echo "Uso: make db-migration MSG=\"descricao\"" && exit 1)
+	docker compose run --rm -v "$(CURDIR)/backend/alembic/versions:/app/alembic/versions" api alembic revision --autogenerate -m "$(MSG)"
+
+db-psql:
+	docker compose exec db sh -c 'psql -U $$POSTGRES_USER -d $$POSTGRES_DB'
