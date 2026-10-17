@@ -1,9 +1,10 @@
-.PHONY: help install test lint format run up up-build down build logs logs-api ps shell clean db-upgrade db-downgrade db-current db-history db-migration db-psql
+.PHONY: help install test lint format run up up-build down build logs logs-api ps shell clean db-upgrade db-downgrade db-current db-history db-migration db-psql frontend-install frontend-dev frontend-lint frontend-format frontend-check frontend-test frontend-test-e2e frontend-build check-all
 
 POETRY := poetry -C backend
 PYTEST := $(POETRY) run pytest
 RUFF := $(POETRY) run ruff
 UVICORN := $(POETRY) run uvicorn
+NPM := npm --prefix frontend
 
 help:
 	@echo "Comandos disponiveis:"
@@ -27,6 +28,15 @@ help:
 	@echo "  make db-history   - lista o historico de migrations"
 	@echo "  make db-migration MSG=\"descricao\" - gera uma nova migration"
 	@echo "  make db-psql      - abre o psql no container do PostgreSQL"
+	@echo "  make frontend-install  - instala as dependencias do frontend (npm ci)"
+	@echo "  make frontend-dev      - inicia o frontend localmente (Vite)"
+	@echo "  make frontend-lint     - verifica o frontend com Biome"
+	@echo "  make frontend-format   - formata o frontend com Biome"
+	@echo "  make frontend-check    - lint + formatacao (Biome, sem alterar arquivos)"
+	@echo "  make frontend-test     - executa os testes do frontend (Vitest)"
+	@echo "  make frontend-test-e2e - executa os testes E2E (Playwright)"
+	@echo "  make frontend-build    - gera o build de producao do frontend"
+	@echo "  make check-all         - valida backend e frontend"
 
 install:
 	$(POETRY) install
@@ -88,3 +98,29 @@ db-migration:
 
 db-psql:
 	docker compose exec db sh -c 'psql -U $$POSTGRES_USER -d $$POSTGRES_DB'
+
+frontend-install:
+	$(NPM) ci
+
+frontend-dev:
+	$(NPM) run dev
+
+frontend-lint:
+	$(NPM) run lint
+
+frontend-format:
+	$(NPM) run format
+
+frontend-check:
+	$(NPM) run check
+
+frontend-test:
+	$(NPM) run test
+
+frontend-test-e2e:
+	$(NPM) run test:e2e
+
+frontend-build:
+	$(NPM) run build
+
+check-all: lint test frontend-check frontend-test frontend-build frontend-test-e2e
